@@ -2,39 +2,64 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
 
-  <title>スタッフ打刻</title>
+  <title>Nail Salon スタッフシステム</title>
 
   <style>
+
+    /* =====================================================
+       基本
+    ===================================================== */
+
     * {
       box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
     }
 
     body {
       margin: 0;
       min-height: 100vh;
+
       font-family:
         -apple-system,
         BlinkMacSystemFont,
         "Helvetica Neue",
         "Hiragino Kaku Gothic ProN",
+        "Hiragino Sans",
         "Yu Gothic",
+        "Meiryo",
         sans-serif;
+
       background: #f7f5f2;
       color: #333;
     }
 
+    button {
+      font-family: inherit;
+    }
+
     .container {
       width: 100%;
-      max-width: 520px;
+      max-width: 720px;
       margin: 0 auto;
-      padding: 28px 20px 40px;
+      padding: 28px 20px 50px;
     }
+
+
+    /* =====================================================
+       Header
+    ===================================================== */
 
     .header {
       text-align: center;
-      margin-bottom: 28px;
+      margin-bottom: 30px;
     }
 
     .title {
@@ -46,16 +71,154 @@
 
     .subtitle {
       margin-top: 8px;
-      color: #888;
+      color: #999;
       font-size: 14px;
     }
 
+
+    /* =====================================================
+       共通ページ
+    ===================================================== */
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+
+    /* =====================================================
+       Home Menu
+    ===================================================== */
+
+    .menu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .menu-button {
+      width: 100%;
+      border: none;
+      background: #fff;
+      border-radius: 20px;
+      padding: 25px 22px;
+
+      display: flex;
+      align-items: center;
+      gap: 18px;
+
+      text-align: left;
+
+      box-shadow:
+        0 3px 15px rgba(0,0,0,0.05);
+
+      cursor: pointer;
+
+      -webkit-tap-highlight-color: transparent;
+
+      transition:
+        transform 0.12s,
+        box-shadow 0.12s;
+    }
+
+    .menu-button:active {
+      transform: scale(0.985);
+    }
+
+    .menu-icon {
+      width: 58px;
+      height: 58px;
+      min-width: 58px;
+
+      border-radius: 17px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 28px;
+
+      background: #f1ece7;
+    }
+
+    .menu-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .menu-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .menu-description {
+      color: #999;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .menu-arrow {
+      font-size: 25px;
+      color: #bbb;
+    }
+
+
+    /* =====================================================
+       Back Button
+    ===================================================== */
+
+    .back-button {
+      border: none;
+      background: transparent;
+
+      padding: 4px 0;
+      margin-bottom: 20px;
+
+      color: #666;
+      font-size: 15px;
+      font-weight: 600;
+
+      cursor: pointer;
+
+      -webkit-tap-highlight-color: transparent;
+    }
+
+
+    /* =====================================================
+       Page Header
+    ===================================================== */
+
+    .page-header {
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .page-subtitle {
+      margin-top: 7px;
+      color: #999;
+      font-size: 13px;
+    }
+
+
+    /* =====================================================
+       打刻页面
+    ===================================================== */
+
     .clock {
       text-align: center;
-      font-size: 34px;
+      font-size: 36px;
       font-weight: 600;
       letter-spacing: 2px;
-      margin: 25px 0 30px;
+      margin: 10px 0 30px;
     }
 
     .section-title {
@@ -74,12 +237,19 @@
       border: 1px solid #ddd;
       background: white;
       border-radius: 14px;
+
       padding: 18px 10px;
+
       font-size: 18px;
       font-weight: 600;
+
       color: #333;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+
+      box-shadow:
+        0 2px 8px rgba(0,0,0,0.04);
+
       cursor: pointer;
+
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -91,18 +261,24 @@
 
     .action-area {
       margin-top: 28px;
+
       display: grid;
       grid-template-columns: 1fr 1fr;
+
       gap: 12px;
     }
 
     .action-button {
       border: none;
       border-radius: 14px;
+
       padding: 20px 10px;
+
       font-size: 20px;
       font-weight: 700;
+
       cursor: pointer;
+
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -123,11 +299,16 @@
 
     .message {
       min-height: 24px;
+
       text-align: center;
+
       margin-top: 20px;
+
       font-size: 15px;
       font-weight: 600;
+
       line-height: 1.5;
+
       word-break: break-word;
     }
 
@@ -141,10 +322,15 @@
 
     .today {
       margin-top: 30px;
+
       background: white;
+
       border-radius: 16px;
+
       padding: 18px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+
+      box-shadow:
+        0 2px 10px rgba(0,0,0,0.04);
     }
 
     .today-title {
@@ -156,9 +342,14 @@
     .record {
       display: flex;
       justify-content: space-between;
+      align-items: center;
+
       gap: 10px;
-      padding: 10px 0;
+
+      padding: 12px 0;
+
       border-bottom: 1px solid #eee;
+
       font-size: 14px;
     }
 
@@ -166,10 +357,19 @@
       border-bottom: none;
     }
 
+    .record-name {
+      font-weight: 600;
+    }
+
+    .record-time {
+      color: #777;
+      text-align: right;
+    }
+
     .empty {
       color: #999;
       text-align: center;
-      padding: 10px 0;
+      padding: 12px 0;
     }
 
     .loading {
@@ -179,82 +379,659 @@
 
     .system-error {
       background: #fff0f0;
+
       border: 1px solid #efb5b5;
+
       color: #b00020;
+
       border-radius: 12px;
+
       padding: 12px;
+
       font-size: 13px;
+
       line-height: 1.5;
+
       word-break: break-word;
+
       grid-column: 1 / -1;
     }
 
+
+    /* =====================================================
+       当日对账
+    ===================================================== */
+
+    .sales-date-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 10px;
+
+      margin-bottom: 18px;
+    }
+
+    .sales-date {
+      color: #777;
+      font-size: 14px;
+    }
+
+    .refresh-button {
+      border: 1px solid #ddd;
+
+      background: #fff;
+
+      border-radius: 10px;
+
+      padding: 9px 14px;
+
+      font-size: 14px;
+      font-weight: 600;
+
+      color: #555;
+
+      cursor: pointer;
+
+      white-space: nowrap;
+
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .refresh-button:active {
+      transform: scale(0.97);
+    }
+
+    .total-card {
+      background: #fff;
+
+      border-radius: 18px;
+
+      padding: 24px;
+
+      box-shadow:
+        0 2px 10px rgba(0,0,0,0.04);
+
+      margin-bottom: 14px;
+    }
+
+    .total-label {
+      color: #999;
+
+      font-size: 14px;
+
+      margin-bottom: 7px;
+    }
+
+    .total-amount {
+      font-size: 38px;
+
+      font-weight: 800;
+
+      letter-spacing: 1px;
+    }
+
+    .summary-grid {
+      display: grid;
+
+      grid-template-columns: 1fr 1fr;
+
+      gap: 12px;
+
+      margin-bottom: 24px;
+    }
+
+    .summary-card {
+      background: #fff;
+
+      border-radius: 16px;
+
+      padding: 18px;
+
+      box-shadow:
+        0 2px 10px rgba(0,0,0,0.04);
+    }
+
+    .summary-label {
+      color: #999;
+
+      font-size: 13px;
+
+      margin-bottom: 7px;
+    }
+
+    .summary-value {
+      font-size: 23px;
+
+      font-weight: 750;
+    }
+
+    .sales-section {
+      background: #fff;
+
+      border-radius: 16px;
+
+      padding: 18px;
+
+      margin-bottom: 14px;
+
+      box-shadow:
+        0 2px 10px rgba(0,0,0,0.04);
+    }
+
+    .sales-section-title {
+      font-size: 16px;
+
+      font-weight: 700;
+
+      margin-bottom: 12px;
+    }
+
+    .sales-list {
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 0;
+    }
+
+    .sales-row {
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      gap: 15px;
+
+      padding: 13px 0;
+
+      border-bottom: 1px solid #eee;
+    }
+
+    .sales-row:last-child {
+      border-bottom: none;
+    }
+
+    .sales-name {
+      font-size: 14px;
+
+      font-weight: 600;
+    }
+
+    .sales-amount {
+      font-size: 15px;
+
+      font-weight: 700;
+
+      white-space: nowrap;
+    }
+
+    .sales-note {
+      margin-top: 5px;
+
+      color: #aaa;
+
+      font-size: 12px;
+
+      line-height: 1.6;
+
+      text-align: center;
+    }
+
+
+    /* =====================================================
+       手机
+    ===================================================== */
+
+    @media (max-width: 480px) {
+
+      .container {
+        padding:
+          22px
+          18px
+          45px;
+      }
+
+      .title {
+        font-size: 25px;
+      }
+
+      .clock {
+        font-size: 34px;
+      }
+
+      .menu-button {
+        padding: 22px 18px;
+      }
+
+      .menu-icon {
+        width: 54px;
+        height: 54px;
+        min-width: 54px;
+        font-size: 26px;
+      }
+
+      .menu-title {
+        font-size: 18px;
+      }
+
+      .menu-description {
+        font-size: 12px;
+      }
+
+      .page-title {
+        font-size: 22px;
+      }
+
+      .staff-button {
+        font-size: 17px;
+        padding: 17px 8px;
+      }
+
+      .action-button {
+        font-size: 18px;
+        padding: 18px 8px;
+      }
+
+      .total-amount {
+        font-size: 32px;
+      }
+    }
+
+
     @media (max-width: 360px) {
+
       .staff-button {
         font-size: 16px;
       }
 
       .action-button {
-        font-size: 18px;
+        font-size: 17px;
+      }
+
+      .menu-icon {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
       }
     }
+
   </style>
 </head>
 
+
 <body>
+
 
 <div class="container">
 
-  <div class="header">
-    <h1 class="title">スタッフ打刻</h1>
-    <div class="subtitle">Nail Salon</div>
-  </div>
 
-  <div id="clock" class="clock">--:--:--</div>
+  <!-- =====================================================
+       HOME
+  ====================================================== -->
 
-  <div class="section-title">
-    スタッフを選択してください
-  </div>
+  <section
+    id="homePage"
+    class="page active"
+  >
 
-  <div id="staffList" class="staff-grid">
-    <div class="loading">読み込み中...</div>
-  </div>
+    <div class="header">
 
-  <div class="action-area">
+      <h1 class="title">
+        スタッフシステム
+      </h1>
 
-    <button
-      id="clockInButton"
-      class="action-button clock-in"
-      type="button"
-      disabled>
-      出勤
-    </button>
+      <div class="subtitle">
+        Nail Salon
+      </div>
 
-    <button
-      id="clockOutButton"
-      class="action-button clock-out"
-      type="button"
-      disabled>
-      退勤
-    </button>
-
-  </div>
-
-  <div id="message" class="message"></div>
-
-  <div class="today">
-
-    <div class="today-title">
-      本日の打刻
     </div>
 
-    <div id="todayRecords">
-      <div class="empty">読み込み中...</div>
+
+    <div class="menu-list">
+
+
+      <!-- 打刻 -->
+
+      <button
+        type="button"
+        class="menu-button"
+        onclick="showPage('clockPage')"
+      >
+
+        <div class="menu-icon">
+          🕐
+        </div>
+
+        <div class="menu-text">
+
+          <div class="menu-title">
+            打刻
+          </div>
+
+          <div class="menu-description">
+            スタッフの出勤・退勤を記録します
+          </div>
+
+        </div>
+
+        <div class="menu-arrow">
+          ›
+        </div>
+
+      </button>
+
+
+      <!-- 当日对账 -->
+
+      <button
+        type="button"
+        class="menu-button"
+        onclick="showPage('salesPage')"
+      >
+
+        <div class="menu-icon">
+          💰
+        </div>
+
+        <div class="menu-text">
+
+          <div class="menu-title">
+            当日対账
+          </div>
+
+          <div class="menu-description">
+            本日の売上・スタッフ別売上・支払方法を確認
+          </div>
+
+        </div>
+
+        <div class="menu-arrow">
+          ›
+        </div>
+
+      </button>
+
+
     </div>
 
-  </div>
+  </section>
+
+
+
+  <!-- =====================================================
+       打刻 PAGE
+  ====================================================== -->
+
+  <section
+    id="clockPage"
+    class="page"
+  >
+
+    <button
+      type="button"
+      class="back-button"
+      onclick="showPage('homePage')"
+    >
+      ← メニュー
+    </button>
+
+
+    <div class="page-header">
+
+      <h2 class="page-title">
+        スタッフ打刻
+      </h2>
+
+      <div class="page-subtitle">
+        出勤・退勤を記録してください
+      </div>
+
+    </div>
+
+
+    <!-- 時計 -->
+
+    <div
+      id="clock"
+      class="clock"
+    >
+      --:--:--
+    </div>
+
+
+    <!-- 员工 -->
+
+    <div class="section-title">
+      スタッフを選択してください
+    </div>
+
+
+    <div
+      id="staffList"
+      class="staff-grid"
+    >
+      <div class="loading">
+        読み込み中...
+      </div>
+    </div>
+
+
+    <!-- 出勤 / 退勤 -->
+
+    <div class="action-area">
+
+      <button
+        id="clockInButton"
+        class="action-button clock-in"
+        type="button"
+        disabled
+      >
+        出勤
+      </button>
+
+      <button
+        id="clockOutButton"
+        class="action-button clock-out"
+        type="button"
+        disabled
+      >
+        退勤
+      </button>
+
+    </div>
+
+
+    <div
+      id="message"
+      class="message"
+    ></div>
+
+
+    <!-- 今日打卡 -->
+
+    <div class="today">
+
+      <div class="today-title">
+        本日の打刻
+      </div>
+
+      <div id="todayRecords">
+        <div class="empty">
+          読み込み中...
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- =====================================================
+       SALES PAGE
+  ====================================================== -->
+
+  <section
+    id="salesPage"
+    class="page"
+  >
+
+    <button
+      type="button"
+      class="back-button"
+      onclick="showPage('homePage')"
+    >
+      ← メニュー
+    </button>
+
+
+    <div class="page-header">
+
+      <h2 class="page-title">
+        当日対账
+      </h2>
+
+      <div class="page-subtitle">
+        本日の売上を確認できます
+      </div>
+
+    </div>
+
+
+    <!-- 日期 + 更新 -->
+
+    <div class="sales-date-bar">
+
+      <div
+        id="salesDate"
+        class="sales-date"
+      >
+        ----
+      </div>
+
+      <button
+        type="button"
+        class="refresh-button"
+        onclick="loadTodaySales()"
+      >
+        ↻ 更新
+      </button>
+
+    </div>
+
+
+    <!-- 总销售 -->
+
+    <div class="total-card">
+
+      <div class="total-label">
+        本日の売上
+      </div>
+
+      <div
+        id="totalSales"
+        class="total-amount"
+      >
+        ¥0
+      </div>
+
+    </div>
+
+
+    <!-- 订单数 -->
+
+    <div class="summary-grid">
+
+      <div class="summary-card">
+
+        <div class="summary-label">
+          注文数
+        </div>
+
+        <div
+          id="orderCount"
+          class="summary-value"
+        >
+          0件
+        </div>
+
+      </div>
+
+
+      <div class="summary-card">
+
+        <div class="summary-label">
+          支払記録
+        </div>
+
+        <div
+          id="paymentCount"
+          class="summary-value"
+        >
+          0件
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- 员工销售 -->
+
+    <div class="sales-section">
+
+      <div class="sales-section-title">
+        スタッフ別売上
+      </div>
+
+      <div
+        id="staffSalesList"
+        class="sales-list"
+      >
+
+        <div class="empty">
+          読み込み中...
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- 支付方式 -->
+
+    <div class="sales-section">
+
+      <div class="sales-section-title">
+        支払方法別
+      </div>
+
+      <div
+        id="paymentSalesList"
+        class="sales-list"
+      >
+
+        <div class="empty">
+          読み込み中...
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="sales-note">
+      ※ 売上の登録・修正は「サービス記録」ページから行ってください。
+    </div>
+
+
+  </section>
+
 
 </div>
+
 
 
 <script>
@@ -278,65 +1055,183 @@ const API_URL =
 ========================================================= */
 
 let staffList = [];
+
 let selectedStaff = null;
+
+
+/* =========================================================
+   ページ切り替え
+========================================================= */
+
+function showPage(pageId) {
+
+  document
+    .querySelectorAll(".page")
+    .forEach(page => {
+
+      page.classList.remove(
+        "active"
+      );
+
+    });
+
+
+  const page =
+    document.getElementById(
+      pageId
+    );
+
+
+  if (!page) {
+    return;
+  }
+
+
+  page.classList.add(
+    "active"
+  );
+
+
+  /*
+    对账页面打开时重新读取
+  */
+
+  if (
+    pageId === "salesPage"
+  ) {
+
+    loadTodaySales();
+
+  }
+
+
+  /*
+    打卡页面打开时重新读取
+  */
+
+  if (
+    pageId === "clockPage"
+  ) {
+
+    loadTodayRecords();
+
+  }
+
+
+  window.scrollTo(
+    0,
+    0
+  );
+}
 
 
 /* =========================================================
    Supabase API
 ========================================================= */
 
-async function apiFetch(path, options = {}) {
+async function apiFetch(
+  path,
+  options = {}
+) {
 
   const headers = {
-    "apikey": SUPABASE_KEY,
-    "Authorization": "Bearer " + SUPABASE_KEY,
-    "Content-Type": "application/json",
+
+    "apikey":
+      SUPABASE_KEY,
+
+    "Authorization":
+      "Bearer " +
+      SUPABASE_KEY,
+
+    "Content-Type":
+      "application/json",
+
     ...options.headers
+
   };
 
-  const response = await fetch(
-    API_URL + path,
-    {
-      ...options,
-      headers
-    }
-  );
+
+  const response =
+    await fetch(
+      API_URL + path,
+      {
+        ...options,
+        headers
+      }
+    );
+
 
   const text =
     await response.text();
 
+
   let data = null;
 
+
   if (text) {
+
     try {
-      data = JSON.parse(text);
+
+      data =
+        JSON.parse(text);
+
     } catch {
-      data = text;
+
+      data =
+        text;
+
     }
+
   }
+
 
   if (!response.ok) {
 
     let message =
-      "HTTP " + response.status;
+      "HTTP " +
+      response.status;
 
-    if (data && data.message) {
-      message = data.message;
-    } else if (data && data.error) {
-      message = data.error;
-    } else if (typeof data === "string") {
-      message = data;
+
+    if (
+      data &&
+      data.message
+    ) {
+
+      message =
+        data.message;
+
+    } else if (
+      data &&
+      data.error
+    ) {
+
+      message =
+        data.error;
+
+    } else if (
+      typeof data ===
+      "string"
+    ) {
+
+      message =
+        data;
+
     }
 
-    throw new Error(message);
+
+    throw new Error(
+      message
+    );
+
   }
+
 
   return data;
 }
 
 
 /* =========================================================
-   日本時間
+   日本日期
 ========================================================= */
 
 function getJapanDate() {
@@ -345,29 +1240,50 @@ function getJapanDate() {
     new Intl.DateTimeFormat(
       "en-US",
       {
-        timeZone: "Asia/Tokyo",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit"
+        timeZone:
+          "Asia/Tokyo",
+
+        year:
+          "numeric",
+
+        month:
+          "2-digit",
+
+        day:
+          "2-digit"
       }
-    ).formatToParts(new Date());
+    ).formatToParts(
+      new Date()
+    );
+
 
   const year =
     parts.find(
-      p => p.type === "year"
+      p =>
+        p.type ===
+        "year"
     ).value;
+
 
   const month =
     parts.find(
-      p => p.type === "month"
+      p =>
+        p.type ===
+        "month"
     ).value;
+
 
   const day =
     parts.find(
-      p => p.type === "day"
+      p =>
+        p.type ===
+        "day"
     ).value;
 
-  return `${year}-${month}-${day}`;
+
+  return (
+    `${year}-${month}-${day}`
+  );
 }
 
 
@@ -380,26 +1296,46 @@ function updateClock() {
   const now =
     new Date();
 
+
   const time =
     new Intl.DateTimeFormat(
       "ja-JP",
       {
-        timeZone: "Asia/Tokyo",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false
+        timeZone:
+          "Asia/Tokyo",
+
+        hour:
+          "2-digit",
+
+        minute:
+          "2-digit",
+
+        second:
+          "2-digit",
+
+        hour12:
+          false
       }
     ).format(now);
 
-  document.getElementById(
-    "clock"
-  ).textContent = time;
+
+  const clock =
+    document.getElementById(
+      "clock"
+    );
+
+
+  if (clock) {
+
+    clock.textContent =
+      time;
+
+  }
 }
 
 
 /* =========================================================
-   メッセージ
+   Message
 ========================================================= */
 
 function showMessage(
@@ -412,16 +1348,19 @@ function showMessage(
       "message"
     );
 
+
   element.textContent =
     message;
 
+
   element.className =
-    "message " + type;
+    "message " +
+    type;
 }
 
 
 /* =========================================================
-   スタッフ取得
+   Staff
 ========================================================= */
 
 async function loadStaff() {
@@ -431,28 +1370,34 @@ async function loadStaff() {
       "staffList"
     );
 
+
   list.innerHTML =
     '<div class="loading">読み込み中...</div>';
+
 
   try {
 
     const params =
       new URLSearchParams();
 
+
     params.set(
       "select",
       "id,name,active,sort_order"
     );
+
 
     params.set(
       "active",
       "eq.true"
     );
 
+
     params.set(
       "order",
       "sort_order.asc"
     );
+
 
     const data =
       await apiFetch(
@@ -460,15 +1405,20 @@ async function loadStaff() {
         params.toString()
       );
 
+
     staffList =
       Array.isArray(data)
         ? data
         : [];
 
-    list.innerHTML = "";
+
+    list.innerHTML =
+      "";
+
 
     if (
-      staffList.length === 0
+      staffList.length ===
+      0
     ) {
 
       list.innerHTML =
@@ -476,6 +1426,7 @@ async function loadStaff() {
 
       return;
     }
+
 
     staffList.forEach(
       staff => {
@@ -485,21 +1436,30 @@ async function loadStaff() {
             "button"
           );
 
+
         button.type =
           "button";
+
 
         button.className =
           "staff-button";
 
+
         button.textContent =
           staff.name;
+
 
         button.addEventListener(
           "click",
           function() {
-            selectStaff(staff);
+
+            selectStaff(
+              staff
+            );
+
           }
         );
+
 
         list.appendChild(
           button
@@ -508,6 +1468,7 @@ async function loadStaff() {
       }
     );
 
+
   } catch (error) {
 
     console.error(
@@ -515,23 +1476,30 @@ async function loadStaff() {
       error
     );
 
+
     list.innerHTML =
       `<div class="system-error">
         スタッフの読み込みに失敗しました。<br><br>
-        ${escapeHtml(error.message)}
+        ${escapeHtml(
+          error.message
+        )}
       </div>`;
+
   }
 }
 
 
 /* =========================================================
-   スタッフ選択
+   Staff Select
 ========================================================= */
 
-function selectStaff(staff) {
+function selectStaff(
+  staff
+) {
 
   selectedStaff =
     staff;
+
 
   document
     .querySelectorAll(
@@ -543,6 +1511,7 @@ function selectStaff(staff) {
         button.classList.remove(
           "selected"
         );
+
 
         if (
           button.textContent ===
@@ -558,13 +1527,18 @@ function selectStaff(staff) {
       }
     );
 
+
   document.getElementById(
     "clockInButton"
-  ).disabled = false;
+  ).disabled =
+    false;
+
 
   document.getElementById(
     "clockOutButton"
-  ).disabled = false;
+  ).disabled =
+    false;
+
 
   showMessage(
     `${staff.name} さんを選択中`
@@ -588,24 +1562,87 @@ async function clockIn() {
     return;
   }
 
+
   const button =
     document.getElementById(
       "clockInButton"
     );
 
-  button.disabled = true;
+
+  button.disabled =
+    true;
+
 
   showMessage(
     "出勤を記録しています..."
   );
+
 
   try {
 
     const now =
       new Date();
 
+
     const workDate =
       getJapanDate();
+
+
+    /*
+      防止重复出勤
+    */
+
+    const params =
+      new URLSearchParams();
+
+
+    params.set(
+      "select",
+      "id,clock_in,clock_out"
+    );
+
+
+    params.set(
+      "staff_id",
+      "eq." +
+      selectedStaff.id
+    );
+
+
+    params.set(
+      "work_date",
+      "eq." +
+      workDate
+    );
+
+
+    params.set(
+      "limit",
+      "1"
+    );
+
+
+    const existing =
+      await apiFetch(
+        "/attendance?" +
+        params.toString()
+      );
+
+
+    if (
+      existing &&
+      existing.length > 0 &&
+      existing[0].clock_in
+    ) {
+
+      showMessage(
+        "本日はすでに出勤打刻されています。",
+        "error"
+      );
+
+      return;
+    }
+
 
     const record = {
 
@@ -620,32 +1657,65 @@ async function clockIn() {
 
     };
 
-    console.log(
-      "出勤データ:",
-      record
-    );
 
-    await apiFetch(
-      "/attendance",
-      {
-        method: "POST",
+    if (
+      existing &&
+      existing.length > 0
+    ) {
 
-        headers: {
-          "Prefer":
-            "return=representation"
-        },
+      await apiFetch(
+        "/attendance?id=eq." +
+        encodeURIComponent(
+          existing[0].id
+        ),
+        {
+          method:
+            "PATCH",
 
-        body:
-          JSON.stringify(record)
-      }
-    );
+          headers: {
+            "Prefer":
+              "return=representation"
+          },
+
+          body:
+            JSON.stringify({
+              clock_in:
+                record.clock_in
+            })
+        }
+      );
+
+    } else {
+
+      await apiFetch(
+        "/attendance",
+        {
+          method:
+            "POST",
+
+          headers: {
+            "Prefer":
+              "return=representation"
+          },
+
+          body:
+            JSON.stringify(
+              record
+            )
+        }
+      );
+
+    }
+
 
     showMessage(
       `${selectedStaff.name} さんの出勤を記録しました。`,
       "success"
     );
 
+
     await loadTodayRecords();
+
 
   } catch (error) {
 
@@ -654,16 +1724,19 @@ async function clockIn() {
       error
     );
 
+
     showMessage(
       "出勤失敗: " +
       error.message,
       "error"
     );
 
+
   } finally {
 
     button.disabled =
       false;
+
   }
 }
 
@@ -684,30 +1757,33 @@ async function clockOut() {
     return;
   }
 
+
   const button =
     document.getElementById(
       "clockOutButton"
     );
 
-  button.disabled = true;
+
+  button.disabled =
+    true;
+
 
   showMessage(
     "退勤を記録しています..."
   );
 
-  try {
 
-    /*
-      未退勤の最新记录
-    */
+  try {
 
     const params =
       new URLSearchParams();
+
 
     params.set(
       "select",
       "id,staff_id,work_date,clock_in,clock_out"
     );
+
 
     params.set(
       "staff_id",
@@ -715,20 +1791,31 @@ async function clockOut() {
       selectedStaff.id
     );
 
+
+    params.set(
+      "work_date",
+      "eq." +
+      getJapanDate()
+    );
+
+
     params.set(
       "clock_out",
       "is.null"
     );
+
 
     params.set(
       "order",
       "clock_in.desc"
     );
 
+
     params.set(
       "limit",
       "1"
     );
+
 
     const data =
       await apiFetch(
@@ -736,37 +1823,34 @@ async function clockOut() {
         params.toString()
       );
 
+
     if (
       !data ||
-      data.length === 0
+      data.length ===
+      0
     ) {
 
       showMessage(
-        "未退勤の出勤記録がありません。",
+        "本日の未退勤記録がありません。",
         "error"
       );
 
       return;
     }
 
+
     const attendanceId =
       data[0].id;
 
 
-    /*
-      退勤时间
-    */
-
-    const updateUrl =
+    await apiFetch(
       "/attendance?id=eq." +
       encodeURIComponent(
         attendanceId
-      );
-
-    await apiFetch(
-      updateUrl,
+      ),
       {
-        method: "PATCH",
+        method:
+          "PATCH",
 
         headers: {
           "Prefer":
@@ -776,17 +1860,21 @@ async function clockOut() {
         body:
           JSON.stringify({
             clock_out:
-              new Date().toISOString()
+              new Date()
+                .toISOString()
           })
       }
     );
+
 
     showMessage(
       `${selectedStaff.name} さんの退勤を記録しました。`,
       "success"
     );
 
+
     await loadTodayRecords();
+
 
   } catch (error) {
 
@@ -795,16 +1883,19 @@ async function clockOut() {
       error
     );
 
+
     showMessage(
       "退勤失敗: " +
       error.message,
       "error"
     );
 
+
   } finally {
 
     button.disabled =
       false;
+
   }
 }
 
@@ -820,31 +1911,39 @@ async function loadTodayRecords() {
       "todayRecords"
     );
 
+
   container.innerHTML =
     '<div class="empty">読み込み中...</div>';
+
 
   try {
 
     const today =
       getJapanDate();
 
+
     const params =
       new URLSearchParams();
+
 
     params.set(
       "select",
       "id,staff_id,work_date,clock_in,clock_out"
     );
 
+
     params.set(
       "work_date",
-      "eq." + today
+      "eq." +
+      today
     );
+
 
     params.set(
       "order",
       "clock_in.desc"
     );
+
 
     const records =
       await apiFetch(
@@ -853,18 +1952,17 @@ async function loadTodayRecords() {
       );
 
 
-    /*
-      员工ID → 名前
-    */
+    const staffMap =
+      {};
 
-    const staffMap = {};
 
     staffList.forEach(
       staff => {
 
         staffMap[
           staff.id
-        ] = staff.name;
+        ] =
+          staff.name;
 
       }
     );
@@ -872,7 +1970,8 @@ async function loadTodayRecords() {
 
     if (
       !records ||
-      records.length === 0
+      records.length ===
+      0
     ) {
 
       container.innerHTML =
@@ -882,7 +1981,8 @@ async function loadTodayRecords() {
     }
 
 
-    container.innerHTML = "";
+    container.innerHTML =
+      "";
 
 
     records.forEach(
@@ -893,6 +1993,7 @@ async function loadTodayRecords() {
             "div"
           );
 
+
         div.className =
           "record";
 
@@ -900,7 +2001,8 @@ async function loadTodayRecords() {
         const name =
           staffMap[
             record.staff_id
-          ] || "不明";
+          ] ||
+          "不明";
 
 
         const inTime =
@@ -912,8 +2014,10 @@ async function loadTodayRecords() {
                 {
                   timeZone:
                     "Asia/Tokyo",
+
                   hour:
                     "2-digit",
+
                   minute:
                     "2-digit"
                 }
@@ -930,8 +2034,10 @@ async function loadTodayRecords() {
                 {
                   timeZone:
                     "Asia/Tokyo",
+
                   hour:
                     "2-digit",
+
                   minute:
                     "2-digit"
                 }
@@ -944,6 +2050,11 @@ async function loadTodayRecords() {
             "span"
           );
 
+
+        nameSpan.className =
+          "record-name";
+
+
         nameSpan.textContent =
           name;
 
@@ -953,6 +2064,11 @@ async function loadTodayRecords() {
             "span"
           );
 
+
+        timeSpan.className =
+          "record-time";
+
+
         timeSpan.textContent =
           `${inTime} ～ ${outTime}`;
 
@@ -961,9 +2077,11 @@ async function loadTodayRecords() {
           nameSpan
         );
 
+
         div.appendChild(
           timeSpan
         );
+
 
         container.appendChild(
           div
@@ -972,6 +2090,7 @@ async function loadTodayRecords() {
       }
     );
 
+
   } catch (error) {
 
     console.error(
@@ -979,38 +2098,574 @@ async function loadTodayRecords() {
       error
     );
 
+
     container.innerHTML =
       `<div class="system-error">
         本日の打刻取得に失敗しました。<br><br>
-        ${escapeHtml(error.message)}
+        ${escapeHtml(
+          error.message
+        )}
       </div>`;
+
   }
 }
 
 
 /* =========================================================
-   HTML安全処理
+   当日销售
 ========================================================= */
 
-function escapeHtml(value) {
+async function loadTodaySales() {
+
+  const date =
+    getJapanDate();
+
+
+  document.getElementById(
+    "salesDate"
+  ).textContent =
+    date;
+
+
+  document.getElementById(
+    "totalSales"
+  ).textContent =
+    "読み込み中...";
+
+
+  try {
+
+    /*
+      1. 今天的服务记录
+    */
+
+    const recordParams =
+      new URLSearchParams();
+
+
+    recordParams.set(
+      "select",
+      "id,staff_id,service_date"
+    );
+
+
+    recordParams.set(
+      "service_date",
+      "eq." +
+      date
+    );
+
+
+    const records =
+      await apiFetch(
+        "/service_records?" +
+        recordParams.toString()
+      );
+
+
+    /*
+      2. 员工总额初始化
+    */
+
+    const staffTotals =
+      {};
+
+
+    staffList.forEach(
+      staff => {
+
+        staffTotals[
+          staff.id
+        ] = 0;
+
+      }
+    );
+
+
+    /*
+      3. 没有订单
+    */
+
+    if (
+      !records ||
+      records.length ===
+      0
+    ) {
+
+      document.getElementById(
+        "totalSales"
+      ).textContent =
+        "¥0";
+
+
+      document.getElementById(
+        "orderCount"
+      ).textContent =
+        "0件";
+
+
+      document.getElementById(
+        "paymentCount"
+      ).textContent =
+        "0件";
+
+
+      renderStaffSales(
+        staffTotals
+      );
+
+
+      renderPaymentSales(
+        {}
+      );
+
+
+      return;
+    }
+
+
+    /*
+      4. 获取付款
+    */
+
+    const ids =
+      records.map(
+        record =>
+          record.id
+      );
+
+
+    const paymentParams =
+      new URLSearchParams();
+
+
+    paymentParams.set(
+      "select",
+      "id,service_record_id,payment_method,amount"
+    );
+
+
+    paymentParams.set(
+      "service_record_id",
+      "in.(" +
+      ids.join(",") +
+      ")"
+    );
+
+
+    const payments =
+      await apiFetch(
+        "/service_payments?" +
+        paymentParams.toString()
+      );
+
+
+    /*
+      5. 计算
+    */
+
+    let totalSales =
+      0;
+
+
+    const paymentTotals =
+      {};
+
+
+    const recordStaffMap =
+      {};
+
+
+    records.forEach(
+      record => {
+
+        recordStaffMap[
+          record.id
+        ] =
+          record.staff_id;
+
+      }
+    );
+
+
+    payments.forEach(
+      payment => {
+
+        const amount =
+          Number(
+            payment.amount ||
+            0
+          );
+
+
+        totalSales +=
+          amount;
+
+
+        /*
+          员工销售
+        */
+
+        const staffId =
+          recordStaffMap[
+            payment.service_record_id
+          ];
+
+
+        if (
+          staffId &&
+          staffTotals[
+            staffId
+          ] !== undefined
+        ) {
+
+          staffTotals[
+            staffId
+          ] +=
+            amount;
+
+        }
+
+
+        /*
+          支付方式
+        */
+
+        const method =
+          payment.payment_method ||
+          "その他";
+
+
+        if (
+          paymentTotals[
+            method
+          ] === undefined
+        ) {
+
+          paymentTotals[
+            method
+          ] = 0;
+
+        }
+
+
+        paymentTotals[
+          method
+        ] +=
+          amount;
+
+      }
+    );
+
+
+    /*
+      6. 显示
+    */
+
+    document.getElementById(
+      "totalSales"
+    ).textContent =
+      "¥" +
+      totalSales.toLocaleString(
+        "ja-JP"
+      );
+
+
+    document.getElementById(
+      "orderCount"
+    ).textContent =
+      records.length +
+      "件";
+
+
+    document.getElementById(
+      "paymentCount"
+    ).textContent =
+      payments.length +
+      "件";
+
+
+    renderStaffSales(
+      staffTotals
+    );
+
+
+    renderPaymentSales(
+      paymentTotals
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "SALES ERROR:",
+      error
+    );
+
+
+    document.getElementById(
+      "totalSales"
+    ).textContent =
+      "読み込みエラー";
+
+
+    document.getElementById(
+      "staffSalesList"
+    ).innerHTML =
+      `<div class="system-error">
+        売上情報を読み込めませんでした。<br><br>
+        ${escapeHtml(
+          error.message
+        )}
+      </div>`;
+
+
+    document.getElementById(
+      "paymentSalesList"
+    ).innerHTML =
+      `<div class="system-error">
+        売上情報を読み込めませんでした。<br><br>
+        ${escapeHtml(
+          error.message
+        )}
+      </div>`;
+
+  }
+}
+
+
+/* =========================================================
+   员工销售显示
+========================================================= */
+
+function renderStaffSales(
+  staffTotals
+) {
+
+  const container =
+    document.getElementById(
+      "staffSalesList"
+    );
+
+
+  if (
+    !staffList ||
+    staffList.length ===
+    0
+  ) {
+
+    container.innerHTML =
+      '<div class="empty">スタッフがありません。</div>';
+
+    return;
+  }
+
+
+  container.innerHTML =
+    "";
+
+
+  staffList.forEach(
+    staff => {
+
+      const amount =
+        staffTotals[
+          staff.id
+        ] || 0;
+
+
+      const row =
+        document.createElement(
+          "div"
+        );
+
+
+      row.className =
+        "sales-row";
+
+
+      const name =
+        document.createElement(
+          "div"
+        );
+
+
+      name.className =
+        "sales-name";
+
+
+      name.textContent =
+        staff.name;
+
+
+      const amountElement =
+        document.createElement(
+          "div"
+        );
+
+
+      amountElement.className =
+        "sales-amount";
+
+
+      amountElement.textContent =
+        "¥" +
+        amount.toLocaleString(
+          "ja-JP"
+        );
+
+
+      row.appendChild(
+        name
+      );
+
+
+      row.appendChild(
+        amountElement
+      );
+
+
+      container.appendChild(
+        row
+      );
+
+    }
+  );
+}
+
+
+/* =========================================================
+   支付方式显示
+========================================================= */
+
+function renderPaymentSales(
+  paymentTotals
+) {
+
+  const container =
+    document.getElementById(
+      "paymentSalesList"
+    );
+
+
+  const methods = [
+
+    "現金",
+
+    "PayPay",
+
+    "クレジットカード",
+
+    "ポイント",
+
+    "スマート"
+
+  ];
+
+
+  container.innerHTML =
+    "";
+
+
+  methods.forEach(
+    method => {
+
+      const amount =
+        paymentTotals[
+          method
+        ] || 0;
+
+
+      const row =
+        document.createElement(
+          "div"
+        );
+
+
+      row.className =
+        "sales-row";
+
+
+      const name =
+        document.createElement(
+          "div"
+        );
+
+
+      name.className =
+        "sales-name";
+
+
+      name.textContent =
+        method;
+
+
+      const amountElement =
+        document.createElement(
+          "div"
+        );
+
+
+      amountElement.className =
+        "sales-amount";
+
+
+      amountElement.textContent =
+        "¥" +
+        amount.toLocaleString(
+          "ja-JP"
+        );
+
+
+      row.appendChild(
+        name
+      );
+
+
+      row.appendChild(
+        amountElement
+      );
+
+
+      container.appendChild(
+        row
+      );
+
+    }
+  );
+}
+
+
+/* =========================================================
+   HTML安全处理
+========================================================= */
+
+function escapeHtml(
+  value
+) {
 
   return String(value)
+
     .replace(
       /&/g,
       "&amp;"
     )
+
     .replace(
       /</g,
       "&lt;"
     )
+
     .replace(
       />/g,
       "&gt;"
     )
+
     .replace(
       /"/g,
       "&quot;"
     )
+
     .replace(
       /'/g,
       "&#039;"
@@ -1019,16 +2674,17 @@ function escapeHtml(value) {
 
 
 /* =========================================================
-   初期化
+   初始化
 ========================================================= */
 
 async function init() {
 
   /*
-    時計
+    时钟
   */
 
   updateClock();
+
 
   setInterval(
     updateClock,
@@ -1037,7 +2693,7 @@ async function init() {
 
 
   /*
-    ボタン
+    按钮
   */
 
   document
@@ -1048,6 +2704,7 @@ async function init() {
       "click",
       clockIn
     );
+
 
   document
     .getElementById(
@@ -1060,35 +2717,63 @@ async function init() {
 
 
   /*
-    Supabase API测试
+    Staff
   */
 
-  try {
+  await loadStaff();
 
-    await loadStaff();
 
-    await loadTodayRecords();
+  /*
+    今日打卡
+  */
 
-  } catch (error) {
+  await loadTodayRecords();
 
-    console.error(
-      "INITIALIZE ERROR:",
-      error
-    );
 
-    document.getElementById(
-      "staffList"
-    ).innerHTML =
-      `<div class="system-error">
-        システムエラー<br><br>
-        ${escapeHtml(error.message)}
-      </div>`;
-  }
+  /*
+    当天销售
+  */
+
+  await loadTodaySales();
+
+
+  /*
+    每60秒自动更新销售
+  */
+
+  setInterval(
+    function() {
+
+      /*
+        只有当前正在看对账页面时刷新
+      */
+
+      const salesPage =
+        document.getElementById(
+          "salesPage"
+        );
+
+
+      if (
+        salesPage &&
+        salesPage.classList.contains(
+          "active"
+        )
+      ) {
+
+        loadTodaySales();
+
+      }
+
+    },
+    60000
+  );
+
 }
 
 
 /* =========================================================
-   页面启动
+   启动
 ========================================================= */
 
 if (
