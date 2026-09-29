@@ -282,13 +282,15 @@ async function loadStaff() {
 
   if (error) {
 
-    console.error(error);
+  console.error("STAFF ERROR:", error);
 
-    document.getElementById("staffList").innerHTML =
-      "<div>スタッフの読み込みに失敗しました。</div>";
+  document.getElementById("staffList").innerHTML =
+    `<div style="color:red;font-size:13px;">
+      ${error.message || "スタッフの読み込みに失敗しました。"}
+    </div>`;
 
-    return;
-  }
+  return;
+}
 
   staffList = data || [];
 
@@ -477,13 +479,15 @@ async function loadTodayRecords() {
 
   if (error) {
 
-    console.error(error);
+  console.error("ATTENDANCE ERROR:", error);
 
-    document.getElementById("todayRecords").innerHTML =
-      '<div class="empty">記録を取得できません。</div>';
+  document.getElementById("todayRecords").innerHTML =
+    `<div class="empty" style="color:red;">
+      ${error.message || "記録を取得できません。"}
+    </div>`;
 
-    return;
-  }
+  return;
+}
 
   const container =
     document.getElementById("todayRecords");
