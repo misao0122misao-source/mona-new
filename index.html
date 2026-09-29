@@ -353,22 +353,36 @@ async function clockIn() {
 
   const now = new Date();
 
+  const japanDate = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(now);
+
   const { error } = await supabaseClient
     .from("attendance")
     .insert({
       staff_id: selectedStaff.id,
+      work_date: japanDate,
       clock_in: now.toISOString()
     });
 
   if (error) {
 
-    console.error(error);
+    console.error("CLOCK IN ERROR:", error);
 
     document.getElementById("message").textContent =
-      "出勤打刻に失敗しました。";
+      "出勤失敗: " + error.message;
 
     return;
   }
+
+  document.getElementById("message").textContent =
+    `${selectedStaff.name} さんの出勤を記録しました。`;
+
+  await loadTodayRecords();
+}
 
   document.getElementById("message").textContent =
     `${selectedStaff.name} さんの出勤を記録しました。`;
