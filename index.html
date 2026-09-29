@@ -6,18 +6,6 @@
 
   <title>スタッフ打刻</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-  const SUPABASE_URL = "https://isspcmbqmwgvchkttief.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_5V4yaPwaEzSRXbN054Qyag_MpT7EZtX";
-
-  const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-</script>
-
   <style>
     * {
       box-sizing: border-box;
@@ -92,6 +80,7 @@
       color: #333;
       box-shadow: 0 2px 8px rgba(0,0,0,0.04);
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .staff-button.selected {
@@ -114,6 +103,7 @@
       font-size: 20px;
       font-weight: 700;
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .clock-in {
@@ -137,6 +127,16 @@
       margin-top: 20px;
       font-size: 15px;
       font-weight: 600;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .success {
+      color: #333;
+    }
+
+    .error {
+      color: #c62828;
     }
 
     .today {
@@ -156,6 +156,7 @@
     .record {
       display: flex;
       justify-content: space-between;
+      gap: 10px;
       padding: 10px 0;
       border-bottom: 1px solid #eee;
       font-size: 14px;
@@ -169,6 +170,23 @@
       color: #999;
       text-align: center;
       padding: 10px 0;
+    }
+
+    .loading {
+      color: #999;
+      padding: 10px 0;
+    }
+
+    .system-error {
+      background: #fff0f0;
+      border: 1px solid #efb5b5;
+      color: #b00020;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      word-break: break-word;
+      grid-column: 1 / -1;
     }
 
     @media (max-width: 360px) {
@@ -185,387 +203,909 @@
 
 <body>
 
-  <div class="container">
+<div class="container">
 
-    <div class="header">
-      <h1 class="title">スタッフ打刻</h1>
-      <div class="subtitle">Nail Salon</div>
+  <div class="header">
+    <h1 class="title">スタッフ打刻</h1>
+    <div class="subtitle">Nail Salon</div>
+  </div>
+
+  <div id="clock" class="clock">--:--:--</div>
+
+  <div class="section-title">
+    スタッフを選択してください
+  </div>
+
+  <div id="staffList" class="staff-grid">
+    <div class="loading">読み込み中...</div>
+  </div>
+
+  <div class="action-area">
+
+    <button
+      id="clockInButton"
+      class="action-button clock-in"
+      type="button"
+      disabled>
+      出勤
+    </button>
+
+    <button
+      id="clockOutButton"
+      class="action-button clock-out"
+      type="button"
+      disabled>
+      退勤
+    </button>
+
+  </div>
+
+  <div id="message" class="message"></div>
+
+  <div class="today">
+
+    <div class="today-title">
+      本日の打刻
     </div>
 
-    <div id="clock" class="clock">--:--:--</div>
-
-    <div class="section-title">
-      スタッフを選択してください
-    </div>
-
-    <div id="staffList" class="staff-grid">
-      読み込み中...
-    </div>
-
-    <div class="action-area">
-
-      <button
-        id="clockInButton"
-        class="action-button clock-in"
-        disabled
-        onclick="clockIn()">
-        出勤
-      </button>
-
-      <button
-        id="clockOutButton"
-        class="action-button clock-out"
-        disabled
-        onclick="clockOut()">
-        退勤
-      </button>
-
-    </div>
-
-    <div id="message" class="message"></div>
-
-    <div class="today">
-
-      <div class="today-title">
-        本日の打刻
-      </div>
-
-      <div id="todayRecords">
-        <div class="empty">読み込み中...</div>
-      </div>
-
+    <div id="todayRecords">
+      <div class="empty">読み込み中...</div>
     </div>
 
   </div>
 
+</div>
+
+
 <script>
 
-let selectedStaff = null;
+/* =========================================================
+   Supabase
+========================================================= */
+
+const SUPABASE_URL =
+  "https://isspcmbqmwgvchkttief.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_5V4yaPwaEzSRXbN054Qyag_MpT7EZtX";
+
+const API_URL =
+  SUPABASE_URL + "/rest/v1";
+
+
+/* =========================================================
+   状態
+========================================================= */
+
 let staffList = [];
+let selectedStaff = null;
 
 
-/* =========================
-   現在時刻
-========================= */
+/* =========================================================
+   Supabase API
+========================================================= */
+
+async function apiFetch(path, options = {}) {
+
+  const headers = {
+    "apikey": SUPABASE_KEY,
+    "Authorization": "Bearer " + SUPABASE_KEY,
+    "Content-Type": "application/json",
+    ...options.headers
+  };
+
+  const response = await fetch(
+    API_URL + path,
+    {
+      ...options,
+      headers
+    }
+  );
+
+  const text =
+    await response.text();
+
+  let data = null;
+
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
+    }
+  }
+
+  if (!response.ok) {
+
+    let message =
+      "HTTP " + response.status;
+
+    if (data && data.message) {
+      message = data.message;
+    } else if (data && data.error) {
+      message = data.error;
+    } else if (typeof data === "string") {
+      message = data;
+    }
+
+    throw new Error(message);
+  }
+
+  return data;
+}
+
+
+/* =========================================================
+   日本時間
+========================================================= */
+
+function getJapanDate() {
+
+  const parts =
+    new Intl.DateTimeFormat(
+      "en-US",
+      {
+        timeZone: "Asia/Tokyo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }
+    ).formatToParts(new Date());
+
+  const year =
+    parts.find(
+      p => p.type === "year"
+    ).value;
+
+  const month =
+    parts.find(
+      p => p.type === "month"
+    ).value;
+
+  const day =
+    parts.find(
+      p => p.type === "day"
+    ).value;
+
+  return `${year}-${month}-${day}`;
+}
+
+
+/* =========================================================
+   時計
+========================================================= */
 
 function updateClock() {
 
-  const now = new Date();
+  const now =
+    new Date();
 
-  const time = now.toLocaleTimeString(
-    "ja-JP",
-    {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit"
-    }
-  );
+  const time =
+    new Intl.DateTimeFormat(
+      "ja-JP",
+      {
+        timeZone: "Asia/Tokyo",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+      }
+    ).format(now);
 
-  document.getElementById("clock").textContent = time;
+  document.getElementById(
+    "clock"
+  ).textContent = time;
 }
 
-setInterval(updateClock, 1000);
-updateClock();
+
+/* =========================================================
+   メッセージ
+========================================================= */
+
+function showMessage(
+  message,
+  type = ""
+) {
+
+  const element =
+    document.getElementById(
+      "message"
+    );
+
+  element.textContent =
+    message;
+
+  element.className =
+    "message " + type;
+}
 
 
-/* =========================
+/* =========================================================
    スタッフ取得
-========================= */
+========================================================= */
 
 async function loadStaff() {
 
-  const { data, error } = await supabaseClient
-    .from("staff")
-    .select("id, name, active, sort_order")
-    .eq("active", true)
-    .order("sort_order");
+  const list =
+    document.getElementById(
+      "staffList"
+    );
 
-  if (error) {
+  list.innerHTML =
+    '<div class="loading">読み込み中...</div>';
 
-  console.error("STAFF ERROR:", error);
+  try {
 
-  document.getElementById("staffList").innerHTML =
-    `<div style="color:red;font-size:13px;">
-      ${error.message || "スタッフの読み込みに失敗しました。"}
-    </div>`;
+    const params =
+      new URLSearchParams();
 
-  return;
+    params.set(
+      "select",
+      "id,name,active,sort_order"
+    );
+
+    params.set(
+      "active",
+      "eq.true"
+    );
+
+    params.set(
+      "order",
+      "sort_order.asc"
+    );
+
+    const data =
+      await apiFetch(
+        "/staff?" +
+        params.toString()
+      );
+
+    staffList =
+      Array.isArray(data)
+        ? data
+        : [];
+
+    list.innerHTML = "";
+
+    if (
+      staffList.length === 0
+    ) {
+
+      list.innerHTML =
+        '<div class="empty">スタッフが登録されていません。</div>';
+
+      return;
+    }
+
+    staffList.forEach(
+      staff => {
+
+        const button =
+          document.createElement(
+            "button"
+          );
+
+        button.type =
+          "button";
+
+        button.className =
+          "staff-button";
+
+        button.textContent =
+          staff.name;
+
+        button.addEventListener(
+          "click",
+          function() {
+            selectStaff(staff);
+          }
+        );
+
+        list.appendChild(
+          button
+        );
+
+      }
+    );
+
+  } catch (error) {
+
+    console.error(
+      "STAFF ERROR:",
+      error
+    );
+
+    list.innerHTML =
+      `<div class="system-error">
+        スタッフの読み込みに失敗しました。<br><br>
+        ${escapeHtml(error.message)}
+      </div>`;
+  }
 }
 
-  staffList = data || [];
 
-  const list = document.getElementById("staffList");
-
-  list.innerHTML = "";
-
-  staffList.forEach(staff => {
-
-    const button = document.createElement("button");
-
-    button.className = "staff-button";
-
-    button.textContent = staff.name;
-
-    button.onclick = () => selectStaff(staff);
-
-    list.appendChild(button);
-
-  });
-}
-
-
-/* =========================
+/* =========================================================
    スタッフ選択
-========================= */
+========================================================= */
 
 function selectStaff(staff) {
 
-  selectedStaff = staff;
+  selectedStaff =
+    staff;
 
-  const buttons =
-    document.querySelectorAll(".staff-button");
+  document
+    .querySelectorAll(
+      ".staff-button"
+    )
+    .forEach(
+      button => {
 
-  buttons.forEach(button => {
+        button.classList.remove(
+          "selected"
+        );
 
-    button.classList.remove("selected");
+        if (
+          button.textContent ===
+          staff.name
+        ) {
 
-    if (button.textContent === staff.name) {
-      button.classList.add("selected");
-    }
+          button.classList.add(
+            "selected"
+          );
 
-  });
+        }
 
-  document.getElementById("clockInButton").disabled = false;
-  document.getElementById("clockOutButton").disabled = false;
+      }
+    );
 
-  document.getElementById("message").textContent =
-    `${staff.name} さんを選択中`;
+  document.getElementById(
+    "clockInButton"
+  ).disabled = false;
+
+  document.getElementById(
+    "clockOutButton"
+  ).disabled = false;
+
+  showMessage(
+    `${staff.name} さんを選択中`
+  );
 }
 
 
-/* =========================
+/* =========================================================
    出勤
-========================= */
+========================================================= */
 
 async function clockIn() {
 
-  if (!selectedStaff) return;
+  if (!selectedStaff) {
 
-  const now = new Date();
-
-  const japanDate = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Tokyo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  }).format(now);
-
-  const { error } = await supabaseClient
-    .from("attendance")
-    .insert({
-      staff_id: selectedStaff.id,
-      work_date: japanDate,
-      clock_in: now.toISOString()
-    });
-
-  if (error) {
-
-    console.error("CLOCK IN ERROR:", error);
-
-    document.getElementById("message").textContent =
-      "出勤失敗: " + error.message;
+    showMessage(
+      "スタッフを選択してください。",
+      "error"
+    );
 
     return;
   }
 
-  document.getElementById("message").textContent =
-    `${selectedStaff.name} さんの出勤を記録しました。`;
+  const button =
+    document.getElementById(
+      "clockInButton"
+    );
 
-  await loadTodayRecords();
+  button.disabled = true;
+
+  showMessage(
+    "出勤を記録しています..."
+  );
+
+  try {
+
+    const now =
+      new Date();
+
+    const workDate =
+      getJapanDate();
+
+    const record = {
+
+      staff_id:
+        selectedStaff.id,
+
+      work_date:
+        workDate,
+
+      clock_in:
+        now.toISOString()
+
+    };
+
+    console.log(
+      "出勤データ:",
+      record
+    );
+
+    await apiFetch(
+      "/attendance",
+      {
+        method: "POST",
+
+        headers: {
+          "Prefer":
+            "return=representation"
+        },
+
+        body:
+          JSON.stringify(record)
+      }
+    );
+
+    showMessage(
+      `${selectedStaff.name} さんの出勤を記録しました。`,
+      "success"
+    );
+
+    await loadTodayRecords();
+
+  } catch (error) {
+
+    console.error(
+      "CLOCK IN ERROR:",
+      error
+    );
+
+    showMessage(
+      "出勤失敗: " +
+      error.message,
+      "error"
+    );
+
+  } finally {
+
+    button.disabled =
+      false;
+  }
 }
 
-  document.getElementById("message").textContent =
-    `${selectedStaff.name} さんの出勤を記録しました。`;
 
-  loadTodayRecords();
-}
-
-
-/* =========================
+/* =========================================================
    退勤
-========================= */
+========================================================= */
 
 async function clockOut() {
 
-  if (!selectedStaff) return;
+  if (!selectedStaff) {
 
-  const { data, error } = await supabaseClient
-    .from("attendance")
-    .select("id")
-    .eq("staff_id", selectedStaff.id)
-    .is("clock_out", null)
-    .order("clock_in", {
-      ascending: false
-    })
-    .limit(1);
-
-  if (error) {
-
-    console.error(error);
-
-    document.getElementById("message").textContent =
-      "退勤打刻に失敗しました。";
+    showMessage(
+      "スタッフを選択してください。",
+      "error"
+    );
 
     return;
   }
 
-  if (!data || data.length === 0) {
+  const button =
+    document.getElementById(
+      "clockOutButton"
+    );
 
-    document.getElementById("message").textContent =
-      "未退勤の出勤記録がありません。";
+  button.disabled = true;
 
-    return;
+  showMessage(
+    "退勤を記録しています..."
+  );
+
+  try {
+
+    /*
+      未退勤の最新记录
+    */
+
+    const params =
+      new URLSearchParams();
+
+    params.set(
+      "select",
+      "id,staff_id,work_date,clock_in,clock_out"
+    );
+
+    params.set(
+      "staff_id",
+      "eq." +
+      selectedStaff.id
+    );
+
+    params.set(
+      "clock_out",
+      "is.null"
+    );
+
+    params.set(
+      "order",
+      "clock_in.desc"
+    );
+
+    params.set(
+      "limit",
+      "1"
+    );
+
+    const data =
+      await apiFetch(
+        "/attendance?" +
+        params.toString()
+      );
+
+    if (
+      !data ||
+      data.length === 0
+    ) {
+
+      showMessage(
+        "未退勤の出勤記録がありません。",
+        "error"
+      );
+
+      return;
+    }
+
+    const attendanceId =
+      data[0].id;
+
+
+    /*
+      退勤时间
+    */
+
+    const updateUrl =
+      "/attendance?id=eq." +
+      encodeURIComponent(
+        attendanceId
+      );
+
+    await apiFetch(
+      updateUrl,
+      {
+        method: "PATCH",
+
+        headers: {
+          "Prefer":
+            "return=representation"
+        },
+
+        body:
+          JSON.stringify({
+            clock_out:
+              new Date().toISOString()
+          })
+      }
+    );
+
+    showMessage(
+      `${selectedStaff.name} さんの退勤を記録しました。`,
+      "success"
+    );
+
+    await loadTodayRecords();
+
+  } catch (error) {
+
+    console.error(
+      "CLOCK OUT ERROR:",
+      error
+    );
+
+    showMessage(
+      "退勤失敗: " +
+      error.message,
+      "error"
+    );
+
+  } finally {
+
+    button.disabled =
+      false;
   }
-
-  const attendanceId = data[0].id;
-
-  const { error: updateError } =
-    await supabaseClient
-      .from("attendance")
-      .update({
-        clock_out: new Date().toISOString()
-      })
-      .eq("id", attendanceId);
-
-  if (updateError) {
-
-    console.error(updateError);
-
-    document.getElementById("message").textContent =
-      "退勤打刻に失敗しました。";
-
-    return;
-  }
-
-  document.getElementById("message").textContent =
-    `${selectedStaff.name} さんの退勤を記録しました。`;
-
-  loadTodayRecords();
 }
 
 
-/* =========================
-   本日の記録
-========================= */
+/* =========================================================
+   今日の打刻
+========================================================= */
 
 async function loadTodayRecords() {
 
-  const today = new Date();
-
-  const start = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  );
-
-  const end = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate() + 1
-  );
-
-  const { data, error } = await supabaseClient
-    .from("attendance")
-    .select(`
-      id,
-      staff_id,
-      clock_in,
-      clock_out,
-      staff (
-        name
-      )
-    `)
-    .gte("clock_in", start.toISOString())
-    .lt("clock_in", end.toISOString())
-    .order("clock_in", {
-      ascending: false
-    });
-
-  if (error) {
-
-  console.error("ATTENDANCE ERROR:", error);
-
-  document.getElementById("todayRecords").innerHTML =
-    `<div class="empty" style="color:red;">
-      ${error.message || "記録を取得できません。"}
-    </div>`;
-
-  return;
-}
-
   const container =
-    document.getElementById("todayRecords");
+    document.getElementById(
+      "todayRecords"
+    );
 
-  container.innerHTML = "";
+  container.innerHTML =
+    '<div class="empty">読み込み中...</div>';
 
-  if (!data || data.length === 0) {
+  try {
+
+    const today =
+      getJapanDate();
+
+    const params =
+      new URLSearchParams();
+
+    params.set(
+      "select",
+      "id,staff_id,work_date,clock_in,clock_out"
+    );
+
+    params.set(
+      "work_date",
+      "eq." + today
+    );
+
+    params.set(
+      "order",
+      "clock_in.desc"
+    );
+
+    const records =
+      await apiFetch(
+        "/attendance?" +
+        params.toString()
+      );
+
+
+    /*
+      员工ID → 名前
+    */
+
+    const staffMap = {};
+
+    staffList.forEach(
+      staff => {
+
+        staffMap[
+          staff.id
+        ] = staff.name;
+
+      }
+    );
+
+
+    if (
+      !records ||
+      records.length === 0
+    ) {
+
+      container.innerHTML =
+        '<div class="empty">本日の打刻はありません。</div>';
+
+      return;
+    }
+
+
+    container.innerHTML = "";
+
+
+    records.forEach(
+      record => {
+
+        const div =
+          document.createElement(
+            "div"
+          );
+
+        div.className =
+          "record";
+
+
+        const name =
+          staffMap[
+            record.staff_id
+          ] || "不明";
+
+
+        const inTime =
+          record.clock_in
+            ? new Date(
+                record.clock_in
+              ).toLocaleTimeString(
+                "ja-JP",
+                {
+                  timeZone:
+                    "Asia/Tokyo",
+                  hour:
+                    "2-digit",
+                  minute:
+                    "2-digit"
+                }
+              )
+            : "--:--";
+
+
+        const outTime =
+          record.clock_out
+            ? new Date(
+                record.clock_out
+              ).toLocaleTimeString(
+                "ja-JP",
+                {
+                  timeZone:
+                    "Asia/Tokyo",
+                  hour:
+                    "2-digit",
+                  minute:
+                    "2-digit"
+                }
+              )
+            : "勤務中";
+
+
+        const nameSpan =
+          document.createElement(
+            "span"
+          );
+
+        nameSpan.textContent =
+          name;
+
+
+        const timeSpan =
+          document.createElement(
+            "span"
+          );
+
+        timeSpan.textContent =
+          `${inTime} ～ ${outTime}`;
+
+
+        div.appendChild(
+          nameSpan
+        );
+
+        div.appendChild(
+          timeSpan
+        );
+
+        container.appendChild(
+          div
+        );
+
+      }
+    );
+
+  } catch (error) {
+
+    console.error(
+      "TODAY RECORD ERROR:",
+      error
+    );
 
     container.innerHTML =
-      '<div class="empty">本日の打刻はありません。</div>';
-
-    return;
+      `<div class="system-error">
+        本日の打刻取得に失敗しました。<br><br>
+        ${escapeHtml(error.message)}
+      </div>`;
   }
-
-  data.forEach(record => {
-
-    const div = document.createElement("div");
-
-    div.className = "record";
-
-    const name =
-      record.staff?.name || "不明";
-
-    const inTime =
-      record.clock_in
-        ? new Date(record.clock_in)
-            .toLocaleTimeString(
-              "ja-JP",
-              {
-                hour: "2-digit",
-                minute: "2-digit"
-              }
-            )
-        : "--:--";
-
-    const outTime =
-      record.clock_out
-        ? new Date(record.clock_out)
-            .toLocaleTimeString(
-              "ja-JP",
-              {
-                hour: "2-digit",
-                minute: "2-digit"
-              }
-            )
-        : "勤務中";
-
-    div.innerHTML = `
-      <span>${name}</span>
-      <span>${inTime} ～ ${outTime}</span>
-    `;
-
-    container.appendChild(div);
-
-  });
 }
 
 
-/* =========================
-   初期化
-========================= */
+/* =========================================================
+   HTML安全処理
+========================================================= */
 
-loadStaff();
-loadTodayRecords();
+function escapeHtml(value) {
+
+  return String(value)
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+}
+
+
+/* =========================================================
+   初期化
+========================================================= */
+
+async function init() {
+
+  /*
+    時計
+  */
+
+  updateClock();
+
+  setInterval(
+    updateClock,
+    1000
+  );
+
+
+  /*
+    ボタン
+  */
+
+  document
+    .getElementById(
+      "clockInButton"
+    )
+    .addEventListener(
+      "click",
+      clockIn
+    );
+
+  document
+    .getElementById(
+      "clockOutButton"
+    )
+    .addEventListener(
+      "click",
+      clockOut
+    );
+
+
+  /*
+    Supabase API测试
+  */
+
+  try {
+
+    await loadStaff();
+
+    await loadTodayRecords();
+
+  } catch (error) {
+
+    console.error(
+      "INITIALIZE ERROR:",
+      error
+    );
+
+    document.getElementById(
+      "staffList"
+    ).innerHTML =
+      `<div class="system-error">
+        システムエラー<br><br>
+        ${escapeHtml(error.message)}
+      </div>`;
+  }
+}
+
+
+/* =========================================================
+   页面启动
+========================================================= */
+
+if (
+  document.readyState ===
+  "loading"
+) {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    init
+  );
+
+} else {
+
+  init();
+
+}
 
 </script>
 
